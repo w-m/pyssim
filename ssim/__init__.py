@@ -8,38 +8,31 @@ Modified by Christopher Godfrey, on 17 July 2012 (lines 32-34)
 Modified by Jeff Terrace, starting 29 August 2012
 """
 
-import numpy
+import numpy as np
 import scipy.ndimage
 from numpy.ma.core import exp
 from scipy.constants.constants import pi
-from compat import ImageOps
 
-def _to_grayscale(im):
-    """
-    Convert PIL image to numpy grayscale array and numpy alpha array
-    @param im: PIL Image object
-    @return (gray, alpha), both numpy arrays
-    """
-    gray = numpy.asarray(ImageOps.grayscale(im)).astype(numpy.float)
-    
-    imbands = im.getbands()
-    if 'A' in imbands:
-        alpha = numpy.asarray(im.split()[-1]).astype(numpy.float)
-    else:
-        alpha = None
-    
-    return gray, alpha
+def _to_grayscale(image):
+
+    flat_image = image.reshape((-1, 3))
+    max_img = np.amax(flat_image, axis = 1).astype('float')
+    min_img = np.amin(flat_image, axis = 1).astype('float')
+
+    lightness = (max_img + min_img) / 2
+
+    return lightness.reshape((image.shape[0], image.shape[1]))
 
 def compute_ssim(im1, im2, gaussian_kernel_sigma=1.5, gaussian_kernel_width=11):
     """
     The function to compute SSIM
-    @param im1: PIL Image object
-    @param im2: PIL Image object
+    @param im1: numpy image
+    @param im2: numpy image
     @return: SSIM float value
     """
     
     #Gaussian kernel definition
-    gaussian_kernel = numpy.zeros((gaussian_kernel_width, gaussian_kernel_width))
+    gaussian_kernel = np.zeros((gaussian_kernel_width, gaussian_kernel_width))
     
     #Fill Gaussian kernel
     for i in range(gaussian_kernel_width):
@@ -49,13 +42,8 @@ def compute_ssim(im1, im2, gaussian_kernel_sigma=1.5, gaussian_kernel_width=11):
                 exp(-(((i - 5) ** 2) + ((j - 5) ** 2)) / (2 * (gaussian_kernel_sigma ** 2)))
 
     # convert the images to grayscale
-    img_mat_1, img_alpha_1 = _to_grayscale(im1)
-    img_mat_2, img_alpha_2 = _to_grayscale(im2)
-    
-    # don't count pixels where both images are both fully transparent
-    if img_alpha_1 is not None and img_alpha_2 is not None:
-        img_mat_1[img_alpha_1 == 255] = 0
-        img_mat_2[img_alpha_2 == 255] = 0
+    img_mat_1 = _to_grayscale(im1)
+    img_mat_2 = _to_grayscale(im2)
     
     #Squares of input matrices
     img_mat_1_sq = img_mat_1 ** 2
@@ -99,6 +87,6 @@ def compute_ssim(im1, im2, gaussian_kernel_sigma=1.5, gaussian_kernel_width=11):
     
     #SSIM
     ssim_map = num_ssim / den_ssim
-    index = numpy.average(ssim_map)
+    index = np.average(ssim_map)
 
     return index
