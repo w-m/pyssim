@@ -14,7 +14,6 @@ from numpy.ma.core import exp
 from scipy.constants.constants import pi
 
 def _to_grayscale(image):
-
     flat_image = image.reshape((-1, 3))
     max_img = np.amax(flat_image, axis = 1).astype('float')
     min_img = np.amin(flat_image, axis = 1).astype('float')
@@ -23,14 +22,7 @@ def _to_grayscale(image):
 
     return lightness.reshape((image.shape[0], image.shape[1]))
 
-def compute_ssim(im1, im2, gaussian_kernel_sigma=1.5, gaussian_kernel_width=11):
-    """
-    The function to compute SSIM
-    @param im1: numpy image
-    @param im2: numpy image
-    @return: SSIM float value
-    """
-    
+def create_gaussian_kernel(gaussian_kernel_sigma = 1.5, gaussian_kernel_width = 11):
     #Gaussian kernel definition
     gaussian_kernel = np.zeros((gaussian_kernel_width, gaussian_kernel_width))
     
@@ -40,6 +32,19 @@ def compute_ssim(im1, im2, gaussian_kernel_sigma=1.5, gaussian_kernel_width=11):
             gaussian_kernel[i, j] = \
                 (1 / (2 * pi * (gaussian_kernel_sigma ** 2))) * \
                 exp(-(((i - 5) ** 2) + ((j - 5) ** 2)) / (2 * (gaussian_kernel_sigma ** 2)))
+
+    return gaussian_kernel
+
+def compute_ssim(im1, im2, gaussian_kernel = None):
+    """
+    The function to compute SSIM
+    @param im1: numpy image
+    @param im2: numpy image
+    @return: SSIM float value
+    """
+
+    if gaussian_kernel == None:
+        gaussian_kernel = create_gaussian_kernel()
 
     # convert the images to grayscale
     img_mat_1 = _to_grayscale(im1)
