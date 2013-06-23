@@ -12,6 +12,7 @@ import numpy as np
 import scipy.ndimage
 from numpy.ma.core import exp
 from scipy.constants.constants import pi
+import numexpr as ne
 
 def _to_grayscale(bgr_image):
     flat_image = bgr_image.reshape((-1, 3)).astype('uint32')
@@ -86,15 +87,9 @@ def compute_ssim(im1, im2, gaussian_kernel = None):
     k_2 = 0.03
     c_2 = (k_2 * l) ** 2
     
-    #Numerator of SSIM
-    num_ssim = (2 * img_mat_mu_12 + c_1) * (2 * img_mat_sigma_12 + c_2)
-    
-    #Denominator of SSIM
-    den_ssim = (img_mat_mu_1_sq + img_mat_mu_2_sq + c_1) * \
-               (img_mat_sigma_1_sq + img_mat_sigma_2_sq + c_2)
-    
-    #SSIM
-    ssim_map = num_ssim / den_ssim
+    ssim_map = ne.evaluate("(2 * img_mat_mu_12 + c_1) * (2 * img_mat_sigma_12 + c_2) / \
+                ((img_mat_mu_1_sq + img_mat_mu_2_sq + c_1) * \
+                 (img_mat_sigma_1_sq + img_mat_sigma_2_sq + c_2))")
     index = np.average(ssim_map)
 
     return index
