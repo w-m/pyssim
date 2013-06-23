@@ -75,8 +75,8 @@ def compute_ssim(im1, im2, gaussian_kernel = None):
     img_mat_sigma_12 = scipy.ndimage.filters.convolve(img_mat_12, gaussian_kernel)
     
     #Centered squares of variances
-    img_mat_sigma_1_sq = img_mat_sigma_1_sq - img_mat_mu_1_sq
-    img_mat_sigma_2_sq = img_mat_sigma_2_sq - img_mat_mu_2_sq
+    img_mat_sigma_1_sq -= img_mat_mu_1_sq
+    img_mat_sigma_2_sq -= img_mat_mu_2_sq
     img_mat_sigma_12 = img_mat_sigma_12 - img_mat_mu_12
     
     #set k1,k2 & c1,c2 to depend on L (width of color map)
