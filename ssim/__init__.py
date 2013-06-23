@@ -29,13 +29,14 @@ def _to_grayscale(bgr_image):
 def create_gaussian_kernel(gaussian_kernel_sigma = 1.5, gaussian_kernel_width = 11):
     #Gaussian kernel definition
     gaussian_kernel = np.zeros((gaussian_kernel_width, gaussian_kernel_width))
+    mu = int(gaussian_kernel_width / 2)
     
     #Fill Gaussian kernel
     for i in range(gaussian_kernel_width):
         for j in range(gaussian_kernel_width):
             gaussian_kernel[i, j] = \
                 (1 / (2 * pi * (gaussian_kernel_sigma ** 2))) * \
-                exp(-(((i - 5) ** 2) + ((j - 5) ** 2)) / (2 * (gaussian_kernel_sigma ** 2)))
+                exp(-(((i - mu) ** 2) + ((j - mu) ** 2)) / (2 * (gaussian_kernel_sigma ** 2)))
 
     return gaussian_kernel
 
