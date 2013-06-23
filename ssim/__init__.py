@@ -13,14 +13,17 @@ import scipy.ndimage
 from numpy.ma.core import exp
 from scipy.constants.constants import pi
 
-def _to_grayscale(image):
-    flat_image = image.reshape((-1, 3))
-    max_img = np.amax(flat_image, axis = 1).astype('float')
-    min_img = np.amin(flat_image, axis = 1).astype('float')
+def _to_grayscale(bgr_image):
+    flat_image = bgr_image.reshape((-1, 3)).astype('uint32')
 
-    lightness = (max_img + min_img) / 2
+    r = flat_image[:, 2]
+    g = flat_image[:, 1]
+    b = flat_image[:, 0]
 
-    return lightness.reshape((image.shape[0], image.shape[1]))
+    luma = (r * 299 + g * 587 + b * 114) / 1000
+    luma = luma.astype('float')
+
+    return luma.reshape((bgr_image.shape[0], bgr_image.shape[1]))
 
 def create_gaussian_kernel(gaussian_kernel_sigma = 1.5, gaussian_kernel_width = 11):
     #Gaussian kernel definition
