@@ -15,20 +15,17 @@ from scipy.constants.constants import pi
 import numexpr as ne
 
 def _to_grayscale(bgr_image):
-    flat_image = bgr_image.reshape((-1, 3)).astype('uint32')
+    int_image = bgr_image.astype('uint32')
+    int_image[:,:,2] *= 299
+    int_image[:,:,1] *= 587
+    int_image[:,:,0] *= 114
 
-    r = flat_image[:, 2]
-    g = flat_image[:, 1]
-    b = flat_image[:, 0]
-
-    luma = (r * 299 + g * 587 + b * 114) / 1000
-    luma = luma.astype('float')
-
-    return luma.reshape((bgr_image.shape[0], bgr_image.shape[1]))
+    luma = np.sum(int_image, axis = 2) / 1000
+    return luma.astype('float')
 
 def create_gaussian_kernel(gaussian_kernel_sigma = 1.5, gaussian_kernel_width = 11):
     # 1D Gaussian kernel definition
-    gaussian_kernel = np.zeros((gaussian_kernel_width))
+    gaussian_kernel = np.ndarray((gaussian_kernel_width))
     mu = int(gaussian_kernel_width / 2)
 
     #Fill Gaussian kernel
